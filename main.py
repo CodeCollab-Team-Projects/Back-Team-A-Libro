@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+from routes.user_routes import user
 import uvicorn
 
 app = FastAPI()
+
+app.include_router(user)
 
 @app.get("/")
 def home():
