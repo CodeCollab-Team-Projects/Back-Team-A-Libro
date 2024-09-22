@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from config.database import get_db
-from services.user_crud import create_user, get_user_by_username, get_user_by_id
+from services.user_crud import create_user, get_user_by_username
 from auth import auth
 from datetime import timedelta
 from schemas.user_schemas import UserCreate, User, UserResponse
