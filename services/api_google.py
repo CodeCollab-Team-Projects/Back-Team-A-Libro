@@ -1,15 +1,15 @@
-import requests
-import random
+from services import user_crud
+from fastapi import HTTPException
 from typing import Optional, List
-from fastapi import HTTPException, Query
 from sqlalchemy.orm import Session
 from models.user_models import Book
 from schemas.user_schemas import BookCreate, BookResponse
-from services.user_crud import get_book_by_google_id, create_book
 
+import random
+import requests
 
 def get_or_create_book(db: Session, google_id: str) -> Book:
-    book = get_book_by_google_id(db, google_id)
+    book = user_crud.get_book_by_google_id(db, google_id)
 
     if not book:
         url = f"https://www.googleapis.com/books/v1/volumes/{google_id}"
@@ -21,14 +21,12 @@ def get_or_create_book(db: Session, google_id: str) -> Book:
         book_data = response.json()
         book_info = book_data.get("volumeInfo", {})
 
-        # Crear el objeto libro para la base de datos
         book = BookCreate(
             google_id=google_id,
             title=book_info.get("title", "Sin título")
         )
 
-        # Guardar el libro en la base de datos
-        book = create_book(db, book)
+        book = user_crud.create_book(db, book)
 
     return book
 
@@ -45,6 +43,7 @@ def fetch_books_from_google(query: Optional[str]) -> list:
         raise HTTPException(status_code=400, detail="Error al obtener libros")
 
     return response.json().get("items", [])
+
 
 def process_books_data(books_data: list) -> List[BookResponse]:
     random_books = random.sample(books_data, min(len(books_data), 20))
