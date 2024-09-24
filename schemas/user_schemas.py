@@ -4,7 +4,7 @@ from typing import Optional, List
 # User Schemas
 
 class User(BaseModel):
-    id: int
+    id: str
     username:str
 
 class UserBase(BaseModel):
@@ -16,10 +16,10 @@ class UserCreate(UserBase):
     password: str
 
 class UserResponse(UserBase):
-    id: int
+    id: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
@@ -39,7 +39,7 @@ class Book(BaseModel):
     average_rating: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BookResponse(BaseModel):
     id: str
@@ -56,10 +56,10 @@ class BookResponse(BaseModel):
     isbn: Optional[str] = None
 
     class Config:
-        orm_mode = True
-# Esquema para libros leídos (con campos de la tabla intermedia)
+        from_attributes = True
+
 class ReadBook(BaseModel):
-    book_id: int
+    book_id: str
     google_id: str
     title: str
     description: Optional[str] = None
@@ -67,12 +67,22 @@ class ReadBook(BaseModel):
     comment: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# Esquema para crear libros
+
 class BookCreate(BaseModel):
     google_id: str
     title: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class BookDetails(BaseModel):
+    google_id: str
+    title: str
+    interested: bool
+    comment: str
+
+    class Config:
+        from_attributes = True
