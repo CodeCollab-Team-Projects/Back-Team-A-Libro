@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from services.user_crud import get_user_by_username
-
 import os
 
 
