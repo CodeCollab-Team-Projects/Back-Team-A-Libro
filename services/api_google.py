@@ -1,14 +1,15 @@
-from services import user_crud
+from services import book_crud
 from fastapi import HTTPException
 from typing import Optional, List
 from sqlalchemy.orm import Session
-from models.user_models import Book
-from schemas.user_schemas import BookCreate, BookResponse
+from model.user_models import Book
+from schemas.book_schemas import BookCreate, BookResponse
+
 import random
 import requests
 
 def get_or_create_book(db: Session, google_id: str) -> Book:
-    book = user_crud.get_book_by_google_id(db, google_id)
+    book = book_crud.get_book_by_google_id(db, google_id)
 
     if not book:
         url = f"https://www.googleapis.com/books/v1/volumes/{google_id}"
@@ -25,7 +26,7 @@ def get_or_create_book(db: Session, google_id: str) -> Book:
             title=book_info.get("title", "Sin título")
         )
 
-        book = user_crud.create_book(db, book)
+        book = book_crud.create_book(db, book)
 
     return book
 

@@ -1,13 +1,9 @@
-# Crud methods for books
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
-from schemas.user_schemas import UserCreate, BookCreate
-from models.user_models import User, Book, user_books_read
-from fastapi import APIRouter, Depends, Query, HTTPException
+from schemas.book_schemas import BookCreate
+from model.user_models import Book, user_books_read
 
 import uuid
-
 
 
 def get_book_by_google_id(db: Session, google_id: str):
