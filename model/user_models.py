@@ -1,6 +1,6 @@
 from config.database import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Table
+from sqlalchemy import Column, String, Boolean, ForeignKey, Table
 
 import uuid
 
