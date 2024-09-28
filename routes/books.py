@@ -6,7 +6,7 @@ from config.database import get_db
 from sqlalchemy.orm import Session
 from schemas.user_schemas import User
 from fastapi import APIRouter, Depends, Query, HTTPException
-from schemas.book_schemas import BookResponse, ReadBook
+from schemas.book_schemas import BookResponse, ReadBook, UpdateBookData
 
 
 book = APIRouter()
@@ -30,6 +30,18 @@ def get_read_books_user(current_user: User = Depends(auth.get_current_user), db:
     books = book_crud.get_read_books(db, user_id=current_user.id)
     return books
 
+@book.put("/books/favorite/{book_id}/update")
+async def update_book(book_id: str, update_data: UpdateBookData,db: Session = Depends(get_db),current_user: User = Depends(auth.get_current_user)):
+    try:
+        updated_book = book_crud.update_book(
+            db=db,
+            user_id=current_user.id,
+            book_id=book_id,
+            update_data=update_data
+        )
+        return updated_book
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @book.delete("/favorite/{google_id}/delete")
 def delete_book(google_id: str, current_user: User = Depends(auth.get_current_user), db: Session = Depends(get_db)):

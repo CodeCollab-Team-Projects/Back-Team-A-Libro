@@ -1,6 +1,6 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
-from schemas.book_schemas import BookCreate
+from schemas.book_schemas import BookCreate, UpdateBookData
 from model.user_models import Book, user_books_read
 
 import uuid
@@ -59,3 +59,31 @@ def delete_book(db: Session, user_id: int, google_id: str):
     db.commit()
     return {"message": "Libro eliminado con exíto."}
 
+def update_book(db: Session, user_id: str, book_id: str, update_data: UpdateBookData):
+    user_book_entry = db.query(user_books_read).filter(
+        user_books_read.c.user_id == user_id,
+        user_books_read.c.book_id == book_id
+    ).first()
+
+    if not user_book_entry:
+        raise ValueError("No marcaste este libro como leído.")
+    
+    update_values = {}
+    if update_data.interested is not None:
+        update_values['interested'] = update_data.interested
+    if update_data.comment is not None:
+        update_values['comment'] = update_data.comment
+
+    if update_values:
+        stmt = (
+            update(user_books_read).
+            where(
+                user_books_read.c.user_id == user_id,
+                user_books_read.c.book_id == book_id
+            ).
+            values(**update_values)
+        )
+        db.execute(stmt)
+        db.commit()
+
+    return {"message": "Libro actualizado exitosamente", "book_id": book_id}

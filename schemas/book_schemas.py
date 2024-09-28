@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 
 
@@ -51,11 +51,7 @@ class BookCreate(BaseModel):
         from_attributes = True
 
 
-class BookDetails(BaseModel):
-    google_id: str
-    title: str
-    interested: bool
-    comment: str
 
-    class Config:
-        from_attributes = True
+class UpdateBookData(BaseModel):
+    interested: Optional[bool] = Field(None)
+    comment: Optional[str] = Field(None, max_length=255)
