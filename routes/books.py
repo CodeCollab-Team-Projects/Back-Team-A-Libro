@@ -19,10 +19,18 @@ def get_books(query: Optional[str] = Query(None, description="Buscar libros por 
     return books
 
 @book.post("/favorite/{google_id}/mark_read")
-def mark_book(google_id: str, interested: bool, comment: str, current_user: User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
+def mark_book(google_id: str, interested: bool, comment: str, rating: Optional[int] = Query(None, ge=1, le=5), current_user: User = Depends(auth.get_current_user), db: Session = Depends(get_db)):
     book = api_google.get_or_create_book(db, google_id)
-    book_crud.mark_book_as_read(db, user_id=current_user.id, book_id=book.id, interested=interested, comment=comment)
-    return {"message": "Libro marcado como leído", "book_id": book.id}
+
+    response = book_crud.mark_book_as_read(
+        db,
+        user_id=current_user.id,
+        book_id=book.id,
+        interested=interested,
+        comment=comment,
+        rating=rating
+    )
+    return response
 
 
 @book.get("/me/read_books", response_model=List[ReadBook])

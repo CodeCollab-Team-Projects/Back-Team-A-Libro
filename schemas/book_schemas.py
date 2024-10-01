@@ -38,6 +38,7 @@ class ReadBook(BaseModel):
     description: Optional[str] = None
     interested: bool
     comment: Optional[str] = None
+    rating: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -51,7 +52,7 @@ class BookCreate(BaseModel):
         from_attributes = True
 
 
-
 class UpdateBookData(BaseModel):
     interested: Optional[bool] = Field(None)
     comment: Optional[str] = Field(None, max_length=255)
+    rating: Optional[int] = Field(None, ge=1, le=5)

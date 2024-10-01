@@ -1,5 +1,7 @@
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from typing import Optional
 from schemas.book_schemas import BookCreate, UpdateBookData
 from model.user_models import Book, user_books_read
 
@@ -9,10 +11,26 @@ import uuid
 def get_book_by_google_id(db: Session, google_id: str):
     return db.query(Book).filter(Book.google_id == google_id).first()
 
-def mark_book_as_read(db: Session, *,user_id: str, book_id: str, interested: bool, comment: str):
-    entry = user_books_read.insert().values(user_id=user_id, book_id=book_id, interested=interested, comment=comment)
-    db.execute(entry)
-    db.commit()
+def mark_book_as_read(db: Session, *,user_id: str, book_id: str, interested: bool, comment: str, rating: Optional[int] = None):
+    existing_entry = db.query(user_books_read).filter_by(user_id=user_id, book_id=book_id).first()
+    if existing_entry:
+        return {"message": "El libro ya ha sido marcado como leído."}
+    
+    stmt = user_books_read.insert().values(
+        user_id=user_id,
+        book_id=book_id,
+        interested=interested,
+        comment= comment,
+        rating=rating
+    )
+    
+    try:
+        db.execute(stmt)
+        db.commit()
+        return {"message": "Libro marcado como leído."}
+    except IntegrityError:
+        db.rollback()
+        return {"message": "Error al marcar el libro como leído."}
 
 def create_book(db: Session, book: BookCreate):
     db_book = Book(
@@ -32,7 +50,8 @@ def get_read_books(db: Session, user_id: str):
             Book.google_id,
             Book.title,
             user_books_read.c.interested,
-            user_books_read.c.comment
+            user_books_read.c.comment,
+            user_books_read.c.rating
         )
         .join(user_books_read, Book.id == user_books_read.c.book_id)
         .filter(user_books_read.c.user_id == user_id)).all()
@@ -73,6 +92,8 @@ def update_book(db: Session, user_id: str, book_id: str, update_data: UpdateBook
         update_values['interested'] = update_data.interested
     if update_data.comment is not None:
         update_values['comment'] = update_data.comment
+    if update_data.rating is not None:
+        update_values['rating'] = update_data.rating
 
     if update_values:
         stmt = (

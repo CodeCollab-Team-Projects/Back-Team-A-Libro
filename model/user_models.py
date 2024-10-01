@@ -1,6 +1,6 @@
 from config.database import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Boolean, ForeignKey, Table
+from sqlalchemy import Column, String, Boolean, ForeignKey, Table, Integer
 
 import uuid
 
@@ -10,7 +10,8 @@ user_books_read = Table(
     Column('user_id', String(36), ForeignKey('users.id'), primary_key=True),
     Column('book_id', String(36), ForeignKey('books.id'), primary_key=True),
     Column('interested', Boolean, default=False),
-    Column('comment', String(255))
+    Column('comment', String(255)),
+    Column('rating', Integer)
 )
 
 
